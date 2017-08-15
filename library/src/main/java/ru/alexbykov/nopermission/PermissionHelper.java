@@ -47,7 +47,11 @@ public class PermissionHelper {
 
     public void run() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+
+            if (successListener != null && failureListener != null) {
+                activity.requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+            } else
+                throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not implemented. Use methods: onSuccess and onFailure");
         }
     }
 
@@ -55,13 +59,11 @@ public class PermissionHelper {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             for (String permission : permissions) {
                 if (ActivityCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                    if (failureListener != null)
-                        failureListener.onFailure();
+                    failureListener.onFailure();
                     return;
                 }
             }
-            if (successListener != null)
-                successListener.onSuccess();
+            successListener.onSuccess();
         }
     }
 
