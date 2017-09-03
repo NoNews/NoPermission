@@ -4,7 +4,7 @@ Android library for permissions request
 
 ### Gradle
 
-    compile 'ru.alexbykov:nopermission:1.0.5'
+    compile 'ru.alexbykov:nopermission:1.0.7'
 
 
 ### Install
@@ -15,6 +15,7 @@ PermissionHelper permissionHelper = new PermissionHelper(context);
 permissionHelper.check(Manifest.permission.READ_CONTACTS)
                 .onSuccess(this::onSuccess)
                 .onFailure(this::onFailure)
+                .onNewerAskAgain(this::onNewerAskAgain)
                 .run();
 ```
 
@@ -25,6 +26,7 @@ Multiply permissions:
    permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
                    .onSuccess(this::onSuccess)
                    .onFailure(this::onFailure)
+                   .onNewerAskAgain(this::onNewerAskAgain)
                    .run();
 ```
 

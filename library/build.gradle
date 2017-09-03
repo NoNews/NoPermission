@@ -16,6 +16,11 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -37,7 +42,7 @@ dependencies {
 publish {
     groupId = 'ru.alexbykov'
     artifactId = 'nopermission'
-    publishVersion = '1.0.5'
+    publishVersion = '1.0.7'
     desc = 'Permission library for Android'
     licences = ['Apache-2.0']
     website = 'https://github.com/NoNews/NoPermission'
