@@ -17,7 +17,7 @@ public class PermissionHelper {
 
     private static final int PERMISSION_REQUEST_CODE = 1005001;
     private Activity activity;
-    private String[] permissions;
+    private String[] permissions = new String[]{};
     private OnPermissionSuccessListener successListener;
     private OnPermissionFailureListener failureListener;
 
@@ -64,6 +64,16 @@ public class PermissionHelper {
                 }
             }
             successListener.onSuccess();
+        }
+    }
+
+
+    public void unsubscribe() {
+        if (failureListener != null) {
+            failureListener = null;
+        }
+        if (successListener != null) {
+            successListener = null;
         }
     }
 
