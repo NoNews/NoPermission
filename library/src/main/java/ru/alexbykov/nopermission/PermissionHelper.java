@@ -17,11 +17,12 @@ public class PermissionHelper {
 
     private static final int PERMISSION_REQUEST_CODE = 1005001;
     private Activity activity;
-    private String[] permissions = new String[]{};
+    private String[] permissions;
     private OnPermissionSuccessListener successListener;
     private OnPermissionFailureListener failureListener;
 
     public PermissionHelper(Activity activity) {
+        permissions = new String[1];
         this.activity = activity;
     }
 

@@ -4,7 +4,7 @@ Android library for permissions request
 
 ### Gradle
 
-    compile 'ru.alexbykov:nopermission:1.0.2'
+    compile 'ru.alexbykov:nopermission:1.0.5'
 
 
 ### Install
