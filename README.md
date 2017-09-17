@@ -25,7 +25,7 @@ Multiply permissions:
 
 ```java
 
-   permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
+   permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
                    .onSuccess(this::onSuccess)
                    .onFailure(this::onFailure)
                    .onNewerAskAgain(this::onNewerAskAgain)
@@ -37,16 +37,14 @@ Don't forget onActivityResult:
 ```java
  @Override
   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-
         permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
    }
 ```
 
 
 #### License
 ```
-Copyright 2017 Mike Antipiev and AlexBykov
+Copyright 2017 Mike Antipiev and Alex Bykov
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
