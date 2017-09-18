@@ -6,6 +6,9 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Date: 30.07.2017
  * Time: 18:39
@@ -25,11 +28,11 @@ public class PermissionHelper {
     private OnPermissionNewerAskAgainListener newerAskAgainListener;
 
     public PermissionHelper(Activity activity) {
-        permissions = new String[1];
         this.activity = activity;
     }
 
     public PermissionHelper check(String permission) {
+        this.permissions = new String[1];
         this.permissions[0] = permission;
         return this;
     }
@@ -55,26 +58,50 @@ public class PermissionHelper {
         return this;
     }
 
-    public void run() {
-        if (isNeedAskPermission()) {
 
-            if (successListener != null && failureListener != null && newerAskAgainListener != null) {
-                activity.requestPermissions(permissions, PERMISSION_REQUEST_CODE);
-            } else
-                throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not implemented. Use methods: onSuccess and onFailure");
+    public void run() {
+        if (isListenersCorrect()) {
+            if (isNeedToAskPermissions()) {
+                checkPermissions();
+            } else {
+                successListener.onSuccess();
+            }
+        } else {
+            throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener or OnPermissionNewerAskAgainListener not implemented. Use methods: onSuccess, onFailure and onNewerAskAgain");
         }
     }
 
-    private boolean isNeedAskPermission() {
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void checkPermissions() {
+        final String[] permissionsForRequest = getPermissionsForRequest();
+        if (permissionsForRequest.length > 0) {
+            activity.requestPermissions(permissionsForRequest, PERMISSION_REQUEST_CODE);
+        } else {
+            successListener.onSuccess();
+        }
+    }
+
+
+    /**
+     * Check listeners for null
+     */
+    private boolean isListenersCorrect() {
+        return successListener != null && failureListener != null && newerAskAgainListener != null;
+    }
+
+
+    /**
+     * We need to ask permission only if API >=23
+     */
+    private boolean isNeedToAskPermissions() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             for (String permission : permissions) {
-                if (isPermissionNotGranted(permission)) {
-                    if (isNeedAskPermission()) {
-
+                if (isNeedToAskPermissions()) {
+                    if (isPermissionNotGranted(permission)) {
                         if (isNewerAskAgain(permission)) {
                             newerAskAgainListener.onNewerAskAgain();
                         } else {
@@ -110,6 +137,17 @@ public class PermissionHelper {
             newerAskAgainListener = null;
         }
     }
+
+    private String[] getPermissionsForRequest() {
+        List<String> permissionsForRequest = new ArrayList<>();
+        for (String permission : permissions) {
+            if (isPermissionNotGranted(permission)) {
+                permissionsForRequest.add(permission);
+            }
+        }
+        return permissionsForRequest.toArray(new String[permissionsForRequest.size()]);
+    }
+
 
     public interface OnPermissionSuccessListener {
         void onSuccess();
