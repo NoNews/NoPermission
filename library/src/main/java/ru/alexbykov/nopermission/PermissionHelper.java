@@ -22,7 +22,7 @@ public class PermissionHelper {
     private String[] permissions;
     private OnPermissionSuccessListener successListener;
     private OnPermissionFailureListener failureListener;
-    private OnPermissionNewerAskAgainListener newerAskAgainListener;
+    private OnPermissionNeverAskAgainListener neverAskAgainListener;
 
     public PermissionHelper(Activity activity) {
         permissions = new String[1];
@@ -50,15 +50,15 @@ public class PermissionHelper {
     }
 
 
-    public PermissionHelper onNewerAskAgain(OnPermissionNewerAskAgainListener listener) {
-        this.newerAskAgainListener = listener;
+    public PermissionHelper onNeverAskAgain(OnPermissionNeverAskAgainListener listener) {
+        this.neverAskAgainListener = listener;
         return this;
     }
 
     public void run() {
         if (isNeedAskPermission()) {
 
-            if (successListener != null && failureListener != null && newerAskAgainListener != null) {
+            if (successListener != null && failureListener != null && neverAskAgainListener != null) {
                 activity.requestPermissions(permissions, PERMISSION_REQUEST_CODE);
             } else
                 throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not implemented. Use methods: onSuccess and onFailure");
@@ -76,7 +76,7 @@ public class PermissionHelper {
                     if (isNeedAskPermission()) {
 
                         if (isNewerAskAgain(permission)) {
-                            newerAskAgainListener.onNewerAskAgain();
+                            neverAskAgainListener.onNeverAskAgain();
                         } else {
                             failureListener.onFailure();
                         }
@@ -106,8 +106,8 @@ public class PermissionHelper {
         if (successListener != null) {
             successListener = null;
         }
-        if (newerAskAgainListener != null) {
-            newerAskAgainListener = null;
+        if (neverAskAgainListener != null) {
+            neverAskAgainListener = null;
         }
     }
 
@@ -115,8 +115,8 @@ public class PermissionHelper {
         void onSuccess();
     }
 
-    public interface OnPermissionNewerAskAgainListener {
-        void onNewerAskAgain();
+    public interface OnPermissionNeverAskAgainListener {
+        void onNeverAskAgain();
     }
 
     public interface OnPermissionFailureListener {
