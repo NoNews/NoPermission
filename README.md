@@ -19,7 +19,7 @@ PermissionHelper permissionHelper = new PermissionHelper(context);
 permissionHelper.check(Manifest.permission.READ_CONTACTS)
                 .onSuccess(this::onSuccess)
                 .onFailure(this::onFailure)
-                .onNewerAskAgain(this::onNewerAskAgain)
+                .onNeverAskAgain(this::onNeverAskAgain)
                 .run();
 ```
 
