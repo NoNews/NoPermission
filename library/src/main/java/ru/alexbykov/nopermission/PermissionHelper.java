@@ -20,9 +20,9 @@ public class PermissionHelper {
     private static final int PERMISSION_REQUEST_CODE = 1005001;
     private Activity activity;
     private String[] permissions;
-    private OnPermissionSuccessListener successListener;
-    private OnPermissionFailureListener failureListener;
-    private OnPermissionNewerAskAgainListener newerAskAgainListener;
+    private Runnable successListener;
+    private Runnable failureListener;
+    private Runnable neverAskAgainListener;
 
     public PermissionHelper(Activity activity) {
         permissions = new String[1];
@@ -39,29 +39,31 @@ public class PermissionHelper {
         return this;
     }
 
-    public PermissionHelper onSuccess(OnPermissionSuccessListener listener) {
+    public PermissionHelper onSuccess(Runnable listener) {
         this.successListener = listener;
         return this;
     }
 
-    public PermissionHelper onFailure(OnPermissionFailureListener listener) {
+    public PermissionHelper onFailure(Runnable listener) {
         this.failureListener = listener;
         return this;
     }
 
 
-    public PermissionHelper onNewerAskAgain(OnPermissionNewerAskAgainListener listener) {
-        this.newerAskAgainListener = listener;
+    public PermissionHelper onNeverAskAgain(Runnable listener) {
+        this.neverAskAgainListener = listener;
         return this;
     }
 
     public void run() {
         if (isNeedAskPermission()) {
 
-            if (successListener != null && failureListener != null && newerAskAgainListener != null) {
+            if (successListener != null && failureListener != null && neverAskAgainListener != null) {
                 activity.requestPermissions(permissions, PERMISSION_REQUEST_CODE);
             } else
                 throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not implemented. Use methods: onSuccess and onFailure");
+        } else if(successListener != null) {
+            successListener.run();
         }
     }
 
@@ -76,16 +78,16 @@ public class PermissionHelper {
                     if (isNeedAskPermission()) {
 
                         if (isNewerAskAgain(permission)) {
-                            newerAskAgainListener.onNewerAskAgain();
+                            neverAskAgainListener.run();
                         } else {
-                            failureListener.onFailure();
+                            failureListener.run();
                         }
                         return;
                     }
                 }
             }
         }
-        successListener.onSuccess();
+        successListener.run();
     }
 
     private boolean isPermissionNotGranted(String permission) {
@@ -106,20 +108,8 @@ public class PermissionHelper {
         if (successListener != null) {
             successListener = null;
         }
-        if (newerAskAgainListener != null) {
-            newerAskAgainListener = null;
+        if (neverAskAgainListener != null) {
+            neverAskAgainListener = null;
         }
-    }
-
-    public interface OnPermissionSuccessListener {
-        void onSuccess();
-    }
-
-    public interface OnPermissionNewerAskAgainListener {
-        void onNewerAskAgain();
-    }
-
-    public interface OnPermissionFailureListener {
-        void onFailure();
     }
 }
