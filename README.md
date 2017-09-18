@@ -52,6 +52,16 @@ OnDestroy:
     }
 ```
 
+
+
+#### Changelog
+
+Be sure to review the [changes list](https://github.com/NoNews/NoPermission/releases) before updating the version
+
+#### Contributing
+
+If you find any bug, or you have suggestions, do not don't be shy to create [issues](https://github.com/NoNews/NoPermission/issues) or make a [PRs](https://github.com/NoNews/NoPermission/pulls) in the `develop` branch
+
 #### License
 ```
 Copyright 2017 Mike Antipiev and Alex Bykov
