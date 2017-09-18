@@ -14,7 +14,7 @@ Android library for permissions request
 ### Install
 
 ```java
-PermissionHelper permissionHelper = new PermissionHelper(context);
+PermissionHelper permissionHelper = new PermissionHelper(this); //getActivity in fragments
 
 permissionHelper.check(Manifest.permission.READ_CONTACTS)
                 .onSuccess(this::onSuccess)
