@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setupUX();
     }
 
+
     private void setupUX() {
         findViewById(R.id.btnAskPermission).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,21 +34,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void askLocationPermission() {
         permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.ACCESS_COARSE_LOCATION)
-                .onSuccess(new PermissionHelper.OnPermissionSuccessListener() {
+                .onSuccess(new Runnable() {
                     @Override
-                    public void onSuccess() {
+                    public void run() {
                         ((TextView) findViewById(R.id.tvResult)).setText("Location success");
                     }
                 })
-                .onFailure(new PermissionHelper.OnPermissionFailureListener() {
+                .onFailure(new Runnable() {
                     @Override
-                    public void onFailure() {
+                    public void run() {
                         ((TextView) findViewById(R.id.tvResult)).setText("Location failure");
                     }
                 })
-                .onNewerAskAgain(new PermissionHelper.OnPermissionNewerAskAgainListener() {
+                .onNeverAskAgain(new Runnable() {
                     @Override
-                    public void onNewerAskAgain() {
+                    public void run() {
                         ((TextView) findViewById(R.id.tvResult)).setText("Location newer ask again");
                     }
                 })

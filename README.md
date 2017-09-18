@@ -8,7 +8,7 @@ Android library for permissions request
 
 ### Gradle
 
-    compile 'ru.alexbykov:nopermission:1.0.7'
+    compile 'ru.alexbykov:nopermission:1.0.8'
 
 
 ### Install
@@ -34,7 +34,7 @@ Multiply permissions:
                    .run();
 ```
 
-Don't forget onActivityResult:
+OnActivityResult:
 
 ```java
  @Override
@@ -43,6 +43,14 @@ Don't forget onActivityResult:
    }
 ```
 
+OnDestroy:
+```java
+ @Override
+    protected void onDestroy() {
+        permissionHelper.unsubscribe();  //for avoid memory leaks
+        super.onDestroy();
+    }
+```
 
 #### License
 ```
