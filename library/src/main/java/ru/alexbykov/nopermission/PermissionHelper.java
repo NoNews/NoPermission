@@ -62,6 +62,8 @@ public class PermissionHelper {
                 activity.requestPermissions(permissions, PERMISSION_REQUEST_CODE);
             } else
                 throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not implemented. Use methods: onSuccess and onFailure");
+        } else if(successListener != null) {
+            successListener.run();
         }
     }
 
