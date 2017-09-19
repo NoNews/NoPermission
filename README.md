@@ -30,7 +30,7 @@ Multiply permissions:
    permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
                    .onSuccess(this::onSuccess)
                    .onFailure(this::onFailure)
-                   .onNewerAskAgain(this::onNewerAskAgain)
+                   .onNeverAskAgain(this::onNewerAskAgain)
                    .run();
 ```
 
@@ -60,7 +60,7 @@ Be sure to review the [changes list](https://github.com/NoNews/NoPermission/rele
 
 #### Contributing
 
-If you find any bug, or you have suggestions, do not don't be shy to create [issues](https://github.com/NoNews/NoPermission/issues) or make a [PRs](https://github.com/NoNews/NoPermission/pulls) in the `develop` branch
+If you find any bug, or you have suggestions, don't be shy to create [issues](https://github.com/NoNews/NoPermission/issues) or make a [PRs](https://github.com/NoNews/NoPermission/pulls) in the `develop` branch
 
 #### License
 ```
