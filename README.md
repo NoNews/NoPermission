@@ -30,7 +30,7 @@ Multiply permissions:
    permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
                    .onSuccess(this::onSuccess)
                    .onFailure(this::onFailure)
-                   .onNeverAskAgain(this::onNewerAskAgain)
+                   .onNeverAskAgain(this::onNeverAskAgain)
                    .run();
 ```
 
