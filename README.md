@@ -3,6 +3,8 @@
 # NoPermission
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-NoPermission-blue.svg?style=flat)](https://android-arsenal.com/details/1/6212)
 
+ [ ![Download](https://api.bintray.com/packages/nonews/maven/nopermission/images/download.svg) ](https://bintray.com/nonews/maven/nopermission/_latestVersion)
+
 Simple Android library for permissions request. Consists of only one class.
 
 
