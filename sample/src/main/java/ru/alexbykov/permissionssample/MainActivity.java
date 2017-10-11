@@ -4,6 +4,7 @@ import android.Manifest;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -11,6 +12,8 @@ import ru.alexbykov.nopermission.PermissionHelper;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    private final String TAG = "PermissionResult: ";
     private static final int LAYOUT = R.layout.activity_main;
     private PermissionHelper permissionHelper;
 
@@ -33,26 +36,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void askLocationPermission() {
-        permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.ACCESS_COARSE_LOCATION)
-                .onSuccess(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.tvResult)).setText("Location success");
-                    }
-                })
-                .onFailure(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.tvResult)).setText("Location failure");
-                    }
-                })
-                .onNeverAskAgain(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.tvResult)).setText("Location newer ask again");
-                    }
-                })
-                .run();
+        permissionHelper.check(Manifest.permission.ACCESS_COARSE_LOCATION).onSuccess(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "LocationSuccess");
+                ((TextView) findViewById(R.id.tvResult)).setText(R.string.result_success);
+            }
+        }).onFailure(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "LocationFailure");
+                ((TextView) findViewById(R.id.tvResult)).setText(R.string.result_failure);
+            }
+        }).onNeverAskAgain(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "LocationNeverAskAgain");
+                ((TextView) findViewById(R.id.tvResult)).setText(R.string.result_never_ask_again);
+            }
+        }).run();
+
     }
 
     private void setupPermissionHelper() {

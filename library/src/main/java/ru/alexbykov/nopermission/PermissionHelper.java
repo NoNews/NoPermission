@@ -97,7 +97,7 @@ public class PermissionHelper {
                 successListener.run();
             }
         } else {
-            throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener or OnPermissionNewerAskAgainListener not implemented. Use methods: onSuccess, onFailure and onNewerAskAgain");
+            throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not installed. Please, use onSuccess and onFailure methods");
         }
     }
 
@@ -121,7 +121,7 @@ public class PermissionHelper {
      * Check listeners for null
      */
     private boolean isListenersCorrect() {
-        return successListener != null && failureListener != null && neverAskAgainListener != null;
+        return successListener != null && failureListener != null;
     }
 
 
@@ -148,7 +148,7 @@ public class PermissionHelper {
 
 
     /**
-     * if permission not granted, check newerAskAgain, else call failure
+     * if permission not granted, check neverAskAgain, else call failure
      * if permission grander, call success
      *
      * @param grantResults Permissions, which granted
@@ -156,21 +156,29 @@ public class PermissionHelper {
      * @param requestCode  requestCode of out request
      */
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == PERMISSION_REQUEST_CODE && isNeedToAskPermissions()) {
             for (String permission : permissions) {
-                if (isNeedToAskPermissions()) {
-                    if (isPermissionNotGranted(permission)) {
-                        if (isNeverAskAgain(permission)) {
-                            neverAskAgainListener.run();
-                        } else {
-                            failureListener.run();
-                        }
-                        return;
+                if (isPermissionNotGranted(permission)) {
+                    if (isNeverAskAgain(permission)) {
+                        runNeverAskAgain();
+                    } else {
+                        failureListener.run();
                     }
+                    return;
                 }
             }
         }
         successListener.run();
+    }
+
+
+    /**
+     * run never ask again callback
+     */
+    private void runNeverAskAgain() {
+        if (neverAskAgainListener != null) {
+            neverAskAgainListener.run();
+        }
     }
 
 
@@ -196,12 +204,8 @@ public class PermissionHelper {
      */
     public void unsubscribe() {
         activity = null;
-        if (failureListener != null) {
-            failureListener = null;
-        }
-        if (successListener != null) {
-            successListener = null;
-        }
+        failureListener = null;
+        successListener = null;
         if (neverAskAgainListener != null) {
             neverAskAgainListener = null;
         }
