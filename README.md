@@ -8,10 +8,17 @@
 Simple Android library for permissions request. Consists of only one class.
 
 
+
+
+### Why NoPermission:
+— Not a framework. It's just one class
+— Never ask again feature
+— Automatic check whether the permission is granted or not
+
+
 ### Gradle
 
-    compile 'ru.alexbykov:nopermission:1.0.8'
-
+    compile 'ru.alexbykov:nopermission:1.1.0'
 
 ### Install
 
