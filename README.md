@@ -67,7 +67,7 @@ OnDestroy:
 
 Be sure to review the [changes list](https://github.com/NoNews/NoPermission/releases) before updating the version
 
-#### Changelog
+#### TODO
 * Support permission result from Fragments
 * Unit tests
 
