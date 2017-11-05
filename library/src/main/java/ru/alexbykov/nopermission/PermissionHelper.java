@@ -2,10 +2,16 @@ package ru.alexbykov.nopermission;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +28,9 @@ import java.util.List;
 public class PermissionHelper {
 
 
-    private static final int PERMISSION_REQUEST_CODE = 1005001;
+    private static final int PERMISSION_REQUEST_CODE = 98;
     private Activity activity;
+    private Fragment fragment;
     private String[] permissions;
     private Runnable successListener;
     private Runnable deniedListener;
@@ -33,9 +40,14 @@ public class PermissionHelper {
         this.activity = activity;
     }
 
+    public PermissionHelper(Fragment fragment) {
+        this.fragment = fragment;
+    }
+
 
     /**
      * @param permission is single permission, which you want to ask
+     * @return current object
      */
     public PermissionHelper check(String permission) {
         this.permissions = new String[1];
@@ -46,6 +58,7 @@ public class PermissionHelper {
 
     /**
      * @param permissions is array of permissions, which you want to ask
+     * @return current object
      */
     public PermissionHelper check(String... permissions) {
         this.permissions = permissions;
@@ -57,6 +70,7 @@ public class PermissionHelper {
      * Setup failure callback
      *
      * @param listener called when user deny permission
+     * @return current object
      */
     public PermissionHelper onSuccess(Runnable listener) {
         this.successListener = listener;
@@ -67,6 +81,7 @@ public class PermissionHelper {
      * Setup failure callback
      *
      * @param listener called when user deny permission
+     * @return current object
      */
     public PermissionHelper onDenied(Runnable listener) {
         this.deniedListener = listener;
@@ -75,9 +90,10 @@ public class PermissionHelper {
 
 
     /**
-     * Setup never ask again callback
+     * This method setup never ask again callback
      *
      * @param listener called when permission in status "never ask again"
+     * @return current object
      */
     public PermissionHelper onNeverAskAgain(Runnable listener) {
         this.neverAskAgainListener = listener;
@@ -86,7 +102,7 @@ public class PermissionHelper {
 
 
     /**
-     * Check API-version and listeners
+     * This method check API-version and listeners
      *
      * @throws RuntimeException if isListenersCorrect return false
      */
@@ -94,10 +110,15 @@ public class PermissionHelper {
         if (isListenersCorrect()) {
             runSuccessOrAskPermissions();
         } else {
-            throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not installed. Please, use onSuccess and onDenied methods");
+            throw new RuntimeException("permissionSuccessListener or permissionDeniedListener have null reference. You must realize onSuccess and onDenied methods");
         }
     }
 
+
+    /**
+     * This method run successListener if all permissions granted,
+     * and run method checkPermissions, if needToAskPermissions return false
+     */
     private void runSuccessOrAskPermissions() {
         if (isNeedToAskPermissions()) {
             checkPermissions();
@@ -108,22 +129,33 @@ public class PermissionHelper {
 
 
     /**
-     * Request only those permissions that are not granted.
-     * If all are granted, the  success  method is triggered
+     * This method request only those permissions that are not granted.
+     * If all are granted, success callback called
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkPermissions() {
         final String[] permissionsForRequest = getPermissionsForRequest();
         if (permissionsForRequest.length > 0) {
-            activity.requestPermissions(permissionsForRequest, PERMISSION_REQUEST_CODE);
+            askPermissions(permissionsForRequest);
         } else {
             successListener.run();
         }
     }
 
+    @SuppressLint("NewApi")
+    private void askPermissions(String[] permissionsForRequest) {
+        if (activity != null) {
+            activity.requestPermissions(permissionsForRequest, PERMISSION_REQUEST_CODE);
+        } else {
+            fragment.requestPermissions(permissionsForRequest, PERMISSION_REQUEST_CODE);
+        }
+    }
+
 
     /**
-     * Check listeners for null
+     * This method check listeners for null
+     *
+     * @return true if you realized method onSuccess and onDenied
      */
     private boolean isListenersCorrect() {
         return successListener != null && deniedListener != null;
@@ -131,7 +163,9 @@ public class PermissionHelper {
 
 
     /**
-     * We need to ask permission only if API >=23
+     * This method ckeck api version
+     *
+     * @return true if API >=23
      */
     private boolean isNeedToAskPermissions() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
@@ -203,7 +237,11 @@ public class PermissionHelper {
      * @return true if permission granted and false if permission not granted
      */
     private boolean isPermissionNotGranted(String permission) {
-        return ActivityCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED;
+        if (activity != null) {
+            return ActivityCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED;
+        } else {
+            return ActivityCompat.checkSelfPermission(fragment.getContext(), permission) != PackageManager.PERMISSION_GRANTED;
+        }
     }
 
 
@@ -213,16 +251,40 @@ public class PermissionHelper {
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean isNeverAskAgain(String permission) {
-        return !activity.shouldShowRequestPermissionRationale(permission);
+        if (activity != null) {
+            return !activity.shouldShowRequestPermissionRationale(permission);
+        } else {
+            return !fragment.shouldShowRequestPermissionRationale(permission);
+        }
+    }
+
+
+    /**
+     * This method start application settings activity
+     * Note: is not possible to open at once screen with application permissions.
+     */
+    public void startApplicationSettingsActivity() {
+        final Context context = activity == null ? fragment.getContext() : activity;
+        final Intent intent = new Intent();
+        final Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+        intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(uri);
+        context.startActivity(intent);
     }
 
     /**
-     * To avoid memory leaks, you must change reference to null
+     * This method change listeners reference to avoid memory leaks
      */
     public void unsubscribe() {
-        activity = null;
         deniedListener = null;
         successListener = null;
+
+        if (activity != null) {
+            activity = null;
+        }
+        if (fragment != null) {
+            fragment = null;
+        }
         if (neverAskAgainListener != null) {
             neverAskAgainListener = null;
         }
