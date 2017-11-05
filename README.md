@@ -28,7 +28,7 @@ PermissionHelper permissionHelper = new PermissionHelper(this); //don't use getA
 
 permissionHelper.check(Manifest.permission.READ_CONTACTS)
                 .onSuccess(this::onSuccess)
-                .onFailure(this::onFailure)
+                .onDenied(this::onDenied)
                 .onNeverAskAgain(this::onNeverAskAgain)
                 .run();
 ```
@@ -39,7 +39,7 @@ permissionHelper.check(Manifest.permission.READ_CONTACTS)
 
    permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
                    .onSuccess(this::onSuccess)
-                   .onFailure(this::onFailure)
+                   .onDenied(this::onDenied)
                    .onNeverAskAgain(this::onNeverAskAgain)
                    .run();
 ```
