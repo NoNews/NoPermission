@@ -1,5 +1,6 @@
 package ru.alexbykov.nopermission;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -16,7 +17,7 @@ import java.util.List;
  *
  * @author Mike Antipiev @nindzyago
  * @author Alex Bykov @NoNews
- * @version 1.0.8
+ * @version 1.1.1
  */
 public class PermissionHelper {
 
@@ -25,7 +26,7 @@ public class PermissionHelper {
     private Activity activity;
     private String[] permissions;
     private Runnable successListener;
-    private Runnable failureListener;
+    private Runnable deniedListener;
     private Runnable neverAskAgainListener;
 
     public PermissionHelper(Activity activity) {
@@ -67,8 +68,8 @@ public class PermissionHelper {
      *
      * @param listener called when user deny permission
      */
-    public PermissionHelper onFailure(Runnable listener) {
-        this.failureListener = listener;
+    public PermissionHelper onDenied(Runnable listener) {
+        this.deniedListener = listener;
         return this;
     }
 
@@ -87,17 +88,21 @@ public class PermissionHelper {
     /**
      * Check API-version and listeners
      *
-     * @throws RuntimeException if one of the listeners null
+     * @throws RuntimeException if isListenersCorrect return false
      */
     public void run() {
         if (isListenersCorrect()) {
-            if (isNeedToAskPermissions()) {
-                checkPermissions();
-            } else {
-                successListener.run();
-            }
+            runSuccessOrAskPermissions();
         } else {
-            throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not installed. Please, use onSuccess and onFailure methods");
+            throw new RuntimeException("OnPermissionSuccessListener or OnPermissionFailureListener not installed. Please, use onSuccess and onDenied methods");
+        }
+    }
+
+    private void runSuccessOrAskPermissions() {
+        if (isNeedToAskPermissions()) {
+            checkPermissions();
+        } else {
+            successListener.run();
         }
     }
 
@@ -121,7 +126,7 @@ public class PermissionHelper {
      * Check listeners for null
      */
     private boolean isListenersCorrect() {
-        return successListener != null && failureListener != null;
+        return successListener != null && deniedListener != null;
     }
 
 
@@ -159,11 +164,7 @@ public class PermissionHelper {
         if (requestCode == PERMISSION_REQUEST_CODE && isNeedToAskPermissions()) {
             for (String permission : permissions) {
                 if (isPermissionNotGranted(permission)) {
-                    if (isNeverAskAgain(permission)) {
-                        runNeverAskAgain();
-                    } else {
-                        failureListener.run();
-                    }
+                    runDeniedOrNeverAskAgain(permission);
                     return;
                 }
             }
@@ -171,9 +172,24 @@ public class PermissionHelper {
         successListener.run();
     }
 
+    /**
+     * This method run denied or neverAskAgain callbacks
+     *
+     * @param permission Permissions, which granted
+     */
+
+    @SuppressLint("NewApi")
+    private void runDeniedOrNeverAskAgain(String permission) {
+        if (isNeverAskAgain(permission)) {
+            runNeverAskAgain();
+        } else {
+            deniedListener.run();
+        }
+    }
+
 
     /**
-     * run never ask again callback
+     * This method run neverAskAgain callback if neverAskAgainListener not null
      */
     private void runNeverAskAgain() {
         if (neverAskAgainListener != null) {
@@ -192,7 +208,8 @@ public class PermissionHelper {
 
 
     /**
-     * Check neverAskAgain
+     * @param permission for check neverAskAgain
+     * @return true if user checked "Never Ask Again"
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean isNeverAskAgain(String permission) {
@@ -204,7 +221,7 @@ public class PermissionHelper {
      */
     public void unsubscribe() {
         activity = null;
-        failureListener = null;
+        deniedListener = null;
         successListener = null;
         if (neverAskAgainListener != null) {
             neverAskAgainListener = null;

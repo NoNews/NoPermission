@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "LocationSuccess");
                 ((TextView) findViewById(R.id.tvResult)).setText(R.string.result_success);
             }
-        }).onFailure(new Runnable() {
+        }).onDenied(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "LocationFailure");
+                Log.d(TAG, "LocationDenied");
                 ((TextView) findViewById(R.id.tvResult)).setText(R.string.result_failure);
             }
         }).onNeverAskAgain(new Runnable() {
