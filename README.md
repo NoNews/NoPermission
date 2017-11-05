@@ -13,17 +13,18 @@ Simple Android library for permissions request. Consists of only one class.
 ### Why NoPermission:
 * Not a framework. It's just one class
 * Never ask again feature
-* Automatic check whether the permission is granted or not
+* Automatic check whether the permission is granted or not (don't need to check api version)
+* Fragment support
 
 
 ### Gradle
 
-    compile 'ru.alexbykov:nopermission:1.1.0'
+    compile 'ru.alexbykov:nopermission:1.1.1'
 
 ### Install
 
 ```java
-PermissionHelper permissionHelper = new PermissionHelper(this); //getActivity in fragments
+PermissionHelper permissionHelper = new PermissionHelper(this); //activity or fragment 
 
 permissionHelper.check(Manifest.permission.READ_CONTACTS)
                 .onSuccess(this::onSuccess)
@@ -32,7 +33,7 @@ permissionHelper.check(Manifest.permission.READ_CONTACTS)
                 .run();
 ```
 
-Multiply permissions:
+##### Multiply permissions:
 
 ```java
 
@@ -43,7 +44,7 @@ Multiply permissions:
                    .run();
 ```
 
-OnActivityResult:
+##### onRequestPermissionsResult:
 
 ```java
  @Override
@@ -52,7 +53,7 @@ OnActivityResult:
    }
 ```
 
-OnDestroy:
+##### onDestroy:
 ```java
  @Override
     protected void onDestroy() {
@@ -68,8 +69,8 @@ OnDestroy:
 Be sure to review the [changes list](https://github.com/NoNews/NoPermission/releases) before updating the version
 
 #### TODO
-* Support permission result from Fragments
 * Unit tests
+* Dialog with explain, why application need permission
 
 
 #### Contributing
