@@ -88,6 +88,15 @@ public class PermissionHelper {
         return this;
     }
 
+    /**
+     * @deprecated use method onFailure instead that
+     *
+     */
+    @Deprecated
+    public PermissionHelper onFailure(Runnable listener) {
+        this.deniedListener = listener;
+        return this;
+    }
 
     /**
      * This method setup never ask again callback
@@ -141,6 +150,12 @@ public class PermissionHelper {
             successListener.run();
         }
     }
+
+
+    /**
+     * This method ask permission
+     * @param permissionsForRequest array of permissions which you want to ask
+     */
 
     @SuppressLint("NewApi")
     private void askPermissions(String[] permissionsForRequest) {
