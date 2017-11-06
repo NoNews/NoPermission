@@ -14,7 +14,7 @@ Simple Android library for permissions request. Consists of only one class.
 * Not a framework. It's just one class
 * Never ask again feature
 * Automatic check whether the permission is granted or not (don't need to check api version)
-* Fragment support
+* Fragments support
 
 
 ### Gradle
@@ -61,6 +61,16 @@ permissionHelper.check(Manifest.permission.READ_CONTACTS)
         super.onDestroy();
     }
 ```
+
+##### Open application settings activity
+If user check "Never ask again", you can redirect him to application settings.
+
+```permissionHelper.openApplicationSettingsActivity()```
+
+Don't forget explain it manually (with dialog). 
+In future this feature will be realised in library. 
+
+
 
 
 
