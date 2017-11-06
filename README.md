@@ -65,7 +65,7 @@ permissionHelper.check(Manifest.permission.READ_CONTACTS)
 ##### Open application settings activity
 If user check "Never ask again", you can redirect him to application settings.
 
-```permissionHelper.openApplicationSettingsActivity()```
+```permissionHelper.startApplicationSettingsActivity();```
 
 Don't forget explain it manually (with dialog). 
 In future this feature will be realised in library. 
