@@ -2,10 +2,13 @@
     <string name="app_name">PermissionsSample</string>
     <string name="btn_ask_location_permission">Ask location permission</string>
     <string name="result_success">Location success</string>
-    <string name="result_denied">Locration denied</string>
+    <string name="result_denied">Location denied</string>
     <string name="result_never_ask_again">Location never ask again</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="btn_fragment_sample">Fragment sample</string>
     <string name="btn_activity_sample">Activity sample</string>
+    <string name="dialog_before_run_title">Location permission needed</string>
+    <string name="dialog_before_run_message">Please accept location permission!</string>
+    <string name="dialog_positive_button">Got it</string>
 </resources>

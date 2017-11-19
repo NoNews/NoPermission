@@ -2,16 +2,20 @@ package ru.alexbykov.nopermission;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.ColorRes;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +27,7 @@ import java.util.List;
  *
  * @author Mike Antipiev @nindzyago
  * @author Alex Bykov @NoNews
- * @version 1.1.1
+ * @version 1.1.2
  */
 public class PermissionHelper {
 
@@ -35,11 +39,27 @@ public class PermissionHelper {
     private Runnable successListener;
     private Runnable deniedListener;
     private Runnable neverAskAgainListener;
+    private AlertDialog.Builder dialogBeforeRunBuilder;
+    private int dialogBeforeAskPositiveButton;
+    private int dialogBeforeAskPositiveButtonColor = DIALOG_WITHOUT_CUSTOM_COLOR;
+    private final static int DIALOG_WITHOUT_CUSTOM_COLOR = 0;
 
+
+    /**
+     * Default activity constructor
+     *
+     * @param activity is activity instance. Use it only in activities. Don't use in fragments!
+     */
     public PermissionHelper(Activity activity) {
         this.activity = activity;
     }
 
+
+    /**
+     * Default fragment constructor
+     *
+     * @param fragment is fragment instance. Use it only in fragments
+     */
     public PermissionHelper(Fragment fragment) {
         this.fragment = fragment;
     }
@@ -67,7 +87,7 @@ public class PermissionHelper {
 
 
     /**
-     * Setup failure callback
+     * Setup success callback
      *
      * @param listener called when user deny permission
      * @return current object
@@ -78,7 +98,7 @@ public class PermissionHelper {
     }
 
     /**
-     * Setup failure callback
+     * Setup denied callback
      *
      * @param listener called when user deny permission
      * @return current object
@@ -89,8 +109,7 @@ public class PermissionHelper {
     }
 
     /**
-     * @deprecated use method onFailure instead that
-     *
+     * @deprecated replaced by  {@link #onDenied(Runnable)} ()
      */
     @Deprecated
     public PermissionHelper onFailure(Runnable listener) {
@@ -111,6 +130,65 @@ public class PermissionHelper {
 
 
     /**
+     * This method setup custom dialog before permissions will be asked.
+     * Dialog will be shown only if permissions not granted.
+     *
+     * @param titleRes          dialog title string resource
+     * @param messageRes        dialog message string resource
+     * @param positiveButtonRes dialog positive button string resource
+     * @return current object
+     */
+
+    public PermissionHelper withDialogBeforeRun(@StringRes int titleRes,
+                                                @StringRes int messageRes,
+                                                @StringRes int positiveButtonRes) {
+
+        this.dialogBeforeAskPositiveButton = positiveButtonRes;
+        dialogBeforeRunBuilder = getDialogBuilder(titleRes, messageRes);
+        return this;
+    }
+
+
+    /**
+     * This method setup custom dialog positive button color
+     *
+     * @param colorRes dialog positive button string resource
+     * @return current object
+     */
+    public PermissionHelper setDialogPositiveButtonColor(@ColorRes int colorRes) {
+        this.dialogBeforeAskPositiveButtonColor = ContextCompat.getColor(getContext(), colorRes);
+        return this;
+    }
+
+
+    /**
+     * This method return dialog builder with default settings.
+     * It is created for the future customization
+     *
+     * @param titleRes   dialog title string resource
+     * @param messageRes dialog message string resource
+     * @return new dialog builder object
+     */
+    private AlertDialog.Builder getDialogBuilder(@StringRes int titleRes, @StringRes int messageRes) {
+        final Context context = getContext();
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+        dialogBuilder.setTitle(context.getString(titleRes));
+        dialogBuilder.setMessage(context.getString(messageRes));
+        dialogBuilder.setCancelable(false);
+        return dialogBuilder;
+    }
+
+    /**
+     * This method return context, depending on what you use: activity or fragment
+     *
+     * @return context
+     */
+    private Context getContext() {
+        return activity == null ? fragment.getContext() : activity;
+    }
+
+
+    /**
      * This method check API-version and listeners
      *
      * @throws RuntimeException if isListenersCorrect return false
@@ -126,7 +204,7 @@ public class PermissionHelper {
 
     /**
      * This method run successListener if all permissions granted,
-     * and run method checkPermissions, if needToAskPermissions return false
+     * and run method c{@link #checkPermissions()}, if {@link #isNeedToAskPermissions()} return false
      */
     private void runSuccessOrAskPermissions() {
         if (isNeedToAskPermissions()) {
@@ -140,23 +218,76 @@ public class PermissionHelper {
     /**
      * This method request only those permissions that are not granted.
      * If all are granted, success callback called
+     * otherwise {@link #checkDialogAndAskPermissions(String[])} will called
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void checkPermissions() {
         final String[] permissionsForRequest = getPermissionsForRequest();
         if (permissionsForRequest.length > 0) {
-            askPermissions(permissionsForRequest);
+            checkDialogAndAskPermissions(permissionsForRequest);
         } else {
             successListener.run();
         }
     }
 
+    /**
+     * This method check your dialog
+     * If you set it, {@link #withDialogBeforeRun}, that dialog will be show before system permission dialog
+     * otherwise {@link #askPermissions(String[])} will be called
+     * Note, custom dialog will show only if permissions not granted.
+     *
+     * @param permissionsForRequest = permissions, when currently not granted and will be asked
+     */
+    @SuppressLint("NewApi")
+    private void checkDialogAndAskPermissions(final String[] permissionsForRequest) {
+        if (dialogBeforeRunBuilder != null && isNotContainsNeverAskAgain(permissionsForRequest)) {
+            showDialogBeforeRun(permissionsForRequest);
+        } else {
+            askPermissions(permissionsForRequest);
+        }
+    }
+
+    /**
+     * This method check permissions for never again.
+     *
+     * @param permissionsForRequest = permissions, when currently not granted and will be asked
+     * @return false if one of them never ask gain
+     */
+    private boolean isNotContainsNeverAskAgain(String[] permissionsForRequest) {
+        for (String permissions : permissionsForRequest) {
+            if (isNeverAskAgain(permissions)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * This method set positive button and custom color to your dialog
+     * method {@link #askPermissions(String[])} called when positive button clicked
+     *
+     * @param permissionsForRequest = permissions, when currently not granted and will be asked
+     */
+    private void showDialogBeforeRun(final String[] permissionsForRequest) {
+        dialogBeforeRunBuilder.setPositiveButton(dialogBeforeAskPositiveButton, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                askPermissions(permissionsForRequest);
+            }
+        });
+        final AlertDialog dialogBeforeRun = dialogBeforeRunBuilder.create();
+
+        dialogBeforeRun.show();
+        if (dialogBeforeAskPositiveButtonColor != DIALOG_WITHOUT_CUSTOM_COLOR) {
+            dialogBeforeRun.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(dialogBeforeAskPositiveButtonColor);
+        }
+    }
 
     /**
      * This method ask permission
+     *
      * @param permissionsForRequest array of permissions which you want to ask
      */
-
     @SuppressLint("NewApi")
     private void askPermissions(String[] permissionsForRequest) {
         if (activity != null) {
@@ -209,8 +340,9 @@ public class PermissionHelper {
      * @param permissions  Permissions, which you asked
      * @param requestCode  requestCode of out request
      */
+    @SuppressLint("NewApi")
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE && isNeedToAskPermissions()) {
+        if (requestCode == PERMISSION_REQUEST_CODE) {
             for (String permission : permissions) {
                 if (isPermissionNotGranted(permission)) {
                     runDeniedOrNeverAskAgain(permission);
@@ -219,6 +351,7 @@ public class PermissionHelper {
             }
         }
         successListener.run();
+        unbind();
     }
 
     /**
@@ -234,6 +367,7 @@ public class PermissionHelper {
         } else {
             deniedListener.run();
         }
+        unbind();
     }
 
 
@@ -264,7 +398,7 @@ public class PermissionHelper {
      * @param permission for check neverAskAgain
      * @return true if user checked "Never Ask Again"
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @SuppressLint("NewApi")
     private boolean isNeverAskAgain(String permission) {
         if (activity != null) {
             return !activity.shouldShowRequestPermissionRationale(permission);
@@ -279,7 +413,7 @@ public class PermissionHelper {
      * Note: is not possible to open at once screen with application permissions.
      */
     public void startApplicationSettingsActivity() {
-        final Context context = activity == null ? fragment.getContext() : activity;
+        final Context context = getContext();
         final Intent intent = new Intent();
         final Uri uri = Uri.fromParts("package", context.getPackageName(), null);
         intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -288,17 +422,25 @@ public class PermissionHelper {
     }
 
     /**
-     * This method change listeners reference to avoid memory leaks
+     * @deprecated no necessary to use begin the version 1.1.2, it's work automatically
+     * after each permissions request.
+     * Don't forget setup callbacks again.
      */
+    @Deprecated
     public void unsubscribe() {
+        unbind();
+    }
+
+    /**
+     * This method change listeners reference to avoid memory leaks
+     * Don't forget setup callbacks and your settings again!
+     */
+    private void unbind() {
         deniedListener = null;
         successListener = null;
-
-        if (activity != null) {
-            activity = null;
-        }
-        if (fragment != null) {
-            fragment = null;
+        if (dialogBeforeRunBuilder != null) {
+            dialogBeforeRunBuilder = null;
+            dialogBeforeAskPositiveButton = DIALOG_WITHOUT_CUSTOM_COLOR;
         }
         if (neverAskAgainListener != null) {
             neverAskAgainListener = null;

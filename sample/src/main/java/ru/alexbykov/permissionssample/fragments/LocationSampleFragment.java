@@ -56,6 +56,8 @@ public class LocationSampleFragment extends Fragment {
 
     private void askLocationPermission() {
         permissionHelper.check(Manifest.permission.ACCESS_COARSE_LOCATION)
+                .withDialogBeforeRun(R.string.dialog_before_run_title, R.string.dialog_before_run_message, R.string.dialog_positive_button)
+                .setDialogPositiveButtonColor(android.R.color.holo_orange_dark)
                 .onSuccess(this::onSuccess)
                 .onDenied(this::onDenied)
                 .onNeverAskAgain(this::onNeverAskAgain)
@@ -87,12 +89,5 @@ public class LocationSampleFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         permissionHelper.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-
-    @Override
-    public void onDestroy() {
-        permissionHelper.unsubscribe();
-        super.onDestroy();
     }
 }

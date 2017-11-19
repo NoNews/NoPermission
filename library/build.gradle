@@ -42,7 +42,7 @@ dependencies {
 publish {
     groupId = 'ru.alexbykov'
     artifactId = 'nopermission'
-    publishVersion = '1.1.1'
+    publishVersion = '1.1.2'
     desc = 'Permission library for Android'
     licences = ['Apache-2.0']
     website = 'https://github.com/NoNews/NoPermission'

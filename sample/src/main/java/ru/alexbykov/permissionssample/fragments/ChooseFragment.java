@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import ru.alexbykov.permissionssample.MainActivity;
+import ru.alexbykov.permissionssample.activities.MainActivity;
 import ru.alexbykov.permissionssample.R;
 import ru.alexbykov.permissionssample.activities.LocationSampleActivity;
 
