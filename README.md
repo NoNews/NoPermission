@@ -12,6 +12,7 @@ Simple Android library for permissions request. Consists of only one class.
 
 ### Why NoPermission:
 * Not a framework. It's just one class
+* Dialog with an explanation of why the application needs permission (with custom title, message and button text and color)
 * Never ask again feature
 * Automatic check whether the permission is granted or not (don't need to check api version)
 * Fragments support
@@ -19,14 +20,16 @@ Simple Android library for permissions request. Consists of only one class.
 
 ### Gradle
 
-    compile 'ru.alexbykov:nopermission:1.1.1'
+    compile 'ru.alexbykov:nopermission:1.1.2'
 
 ### Install
 
 ```java
 PermissionHelper permissionHelper = new PermissionHelper(this); //don't use getActivity in fragment!
 
-permissionHelper.check(Manifest.permission.READ_CONTACTS)
+        permissionHelper.check(Manifest.permission.ACCESS_COARSE_LOCATION)
+                .withDialogBeforeRun(R.string.dialog_before_run_title, R.string.dialog_before_run_message, R.string.dialog_positive_button) //will be shown only if permission not granted
+                .setDialogPositiveButtonColor(android.R.color.holo_orange_dark)
                 .onSuccess(this::onSuccess)
                 .onDenied(this::onDenied)
                 .onNeverAskAgain(this::onNeverAskAgain)
@@ -37,7 +40,9 @@ permissionHelper.check(Manifest.permission.READ_CONTACTS)
 
 ```java
 
-   permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.READ_PHONE_STATE)
+   permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.Manifest.permission.READ_CONTACTS)
+                  .withDialogBeforeRun(R.string.dialog_before_run_title, R.string.dialog_before_run_message, R.string.dialog_positive_button)
+                   .setDialogPositiveButtonColor(android.R.color.holo_orange_dark)
                    .onSuccess(this::onSuccess)
                    .onDenied(this::onDenied)
                    .onNeverAskAgain(this::onNeverAskAgain)
@@ -53,15 +58,6 @@ permissionHelper.check(Manifest.permission.READ_CONTACTS)
    }
 ```
 
-##### onDestroy:
-```java
- @Override
-    protected void onDestroy() {
-        permissionHelper.unsubscribe();  //for avoid memory leaks
-        super.onDestroy();
-    }
-```
-
 ##### Open application settings activity
 If user check "Never ask again", you can redirect him to application settings.
 
@@ -72,16 +68,13 @@ In future this feature will be realised in library.
 
 
 
-
-
 #### Changelog
 
 Be sure to review the [changes list](https://github.com/NoNews/NoPermission/releases) before updating the version
 
 #### TODO
 * Unit tests
-* Dialog with explain, why application need permission
-
+* Getting rid of the ```onRequestPermissionsResult``` method
 
 #### Contributing
 
