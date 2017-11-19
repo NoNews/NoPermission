@@ -41,7 +41,7 @@ PermissionHelper permissionHelper = new PermissionHelper(this); //don't use getA
 ```java
 
    permissionHelper.check(Manifest.permission.READ_CONTACTS, Manifest.permission.Manifest.permission.READ_CONTACTS)
-                  .withDialogBeforeRun(R.string.dialog_before_run_title, R.string.dialog_before_run_message, R.string.dialog_positive_button)
+                   .withDialogBeforeRun(R.string.dialog_before_run_title, R.string.dialog_before_run_message, R.string.dialog_positive_button)
                    .setDialogPositiveButtonColor(android.R.color.holo_orange_dark)
                    .onSuccess(this::onSuccess)
                    .onDenied(this::onDenied)
