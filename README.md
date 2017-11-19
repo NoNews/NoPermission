@@ -28,15 +28,13 @@ Simple Android library for permissions request. Consists of only one class.
 PermissionHelper permissionHelper = new PermissionHelper(this); //don't use getActivity in fragment!
 
         permissionHelper.check(Manifest.permission.ACCESS_COARSE_LOCATION)
-                .withDialogBeforeRun(R.string.dialog_before_run_title, R.string.dialog_before_run_message, R.string.dialog_positive_button) //will be shown only if permission not granted
-                .setDialogPositiveButtonColor(android.R.color.holo_orange_dark)
                 .onSuccess(this::onSuccess)
                 .onDenied(this::onDenied)
                 .onNeverAskAgain(this::onNeverAskAgain)
                 .run();
 ```
 
-##### Multiply permissions:
+##### Multiply permissions and other settings:
 
 ```java
 
