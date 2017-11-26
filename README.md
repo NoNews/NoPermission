@@ -76,7 +76,8 @@ Be sure to review the [changes list](https://github.com/NoNews/NoPermission/rele
 
 #### Contributing
 
-If you find any bug, or you have suggestions, don't be shy to create [issues](https://github.com/NoNews/NoPermission/issues) or make a [PRs](https://github.com/NoNews/NoPermission/pulls) in the `develop` branch
+If you find any bug, or you have suggestions, don't be shy to create [issues](https://github.com/NoNews/NoPermission/issues) or make a [PRs](https://github.com/NoNews/NoPermission/pulls) in the `develop` branch.
+You can read contribution guidelines [here](https://github.com/NoNews/NoPermission/blob/master/CONTRIBUTING.md)
 
 #### License
 ```
